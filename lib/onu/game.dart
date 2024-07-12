@@ -3,7 +3,6 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:onu3_server/onu/card.dart';
-import 'package:onu3_server/onu/game_mode/classic_game_mode.dart';
 import 'package:onu3_server/onu/game_mode/game_mode.dart';
 import 'package:onu3_server/onu/game_mode/game_mode_registry.dart';
 import 'package:onu3_server/onu/player.dart';
@@ -16,6 +15,7 @@ class Game {
   final String gameCode;
   String? password;
   GameMode gameMode = GameModeRegistry.gameModes.first;
+  Map<String, dynamic> settings = {};
   final List<Player> players = [];
   final List<Card> stack = [];
 
@@ -63,6 +63,12 @@ class Game {
     }
 
     this.gameMode = gameMode;
+
+    settings.clear();
+    for (var setting in gameMode.settings) {
+      settings[setting.name] = setting.defaultValue;
+    }
+
     broadcast(SelectGameModePacket(gameModeName: gameModeName));
   }
 
@@ -78,6 +84,6 @@ class Game {
 
   @override
   String toString() {
-    return "Game{$gameCode, $players}";
+    return "Game{$gameCode, $players, $settings}";
   }
 }

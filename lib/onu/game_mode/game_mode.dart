@@ -1,17 +1,26 @@
 import 'package:onu3_server/onu/card.dart';
 import 'package:onu3_server/onu/game.dart';
+import 'package:onu3_server/onu/setting.dart';
 
 abstract class GameMode {
   String get name;
   String get description;
-
-  final Map<String, dynamic> options = {
-    "deckSize": 7,
-  };
+  List<Setting> get settings => [
+        Setting(name: "Card Amount", defaultValue: 7),
+      ];
 
   void startGame(Game game) {
+    if (!game.settings.containsKey('Card Amount')) {
+      print(
+        "Card Amount setting is missing. Skipping player deck generation.",
+      );
+      return;
+    }
+
+    int cardAmount = game.settings['Card Amount'];
+
     for (var player in game.players) {
-      List<Card> deck = generateDeck(options['deckSize'] as int);
+      List<Card> deck = generateDeck(cardAmount);
       player.deck.addAll(deck);
     }
   }
@@ -44,7 +53,7 @@ abstract class GameMode {
     return {
       "name": name,
       "description": description,
-      "options": options,
+      "settings": settings.map((setting) => setting.toJson()).toList(),
     };
   }
 }
