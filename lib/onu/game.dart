@@ -5,7 +5,9 @@ import 'package:crypto/crypto.dart';
 import 'package:onu3_server/onu/card.dart';
 import 'package:onu3_server/onu/game_mode/classic_game_mode.dart';
 import 'package:onu3_server/onu/game_mode/game_mode.dart';
+import 'package:onu3_server/onu/game_mode/game_mode_registry.dart';
 import 'package:onu3_server/onu/player.dart';
+import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
 import 'package:onu3_server/packet/outgoing/joined_game_packet.dart';
 import 'package:onu3_server/packet/outgoing/left_game_packet.dart';
 import 'package:onu3_server/packet/outgoing_packet.dart';
@@ -13,7 +15,7 @@ import 'package:onu3_server/packet/outgoing_packet.dart';
 class Game {
   final String gameCode;
   String? password;
-  GameMode gameMode = ClassicGameMode();
+  GameMode gameMode = GameModeRegistry.gameModes.first;
   final List<Player> players = [];
   final List<Card> stack = [];
 
@@ -49,6 +51,19 @@ class Game {
   void removePlayer(Player player) {
     players.remove(player);
     broadcast(LeftGamePacket(player: player));
+  }
+
+  void selectGameMode(Player player, String gameModeName) {
+    if (players.indexOf(player) != 0) return;
+
+    GameMode? gameMode = GameModeRegistry.getGameMode(gameModeName);
+    if (gameMode == null) {
+      return;
+      // TODO - send game mode invalid packet -> maybe even generic error packet
+    }
+
+    this.gameMode = gameMode;
+    broadcast(SelectGameModePacket(gameModeName: gameModeName));
   }
 
   void addCardToStack(Card card) {

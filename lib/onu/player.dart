@@ -1,5 +1,6 @@
 import 'package:onu3_server/onu/card.dart';
 import 'package:onu3_server/onu/game.dart';
+import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
 import 'package:onu3_server/packet/outgoing_packet.dart';
 import 'package:onu3_server/websocket/connection.dart';
 import 'package:uuid/uuid.dart';
@@ -17,7 +18,11 @@ class Player {
     required this.connection,
     required this.name,
     required this.game,
-  });
+  }) {
+    connection.on<SelectGameModePacket>((packet) {
+      game.selectGameMode(this, packet.gameModeName);
+    });
+  }
 
   factory Player.create({
     required Connection connection,

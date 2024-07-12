@@ -1,5 +1,6 @@
 import 'package:onu3_server/packet/incoming/create_game_packet.dart';
 import 'package:onu3_server/packet/incoming/join_game_packet.dart';
+import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
 import 'package:onu3_server/packet/packet.dart';
 
 abstract class IncomingPacket implements Packet {
@@ -10,6 +11,8 @@ abstract class IncomingPacket implements Packet {
         return JoinGamePacket.fromJson(json);
       case "create_game":
         return CreateGamePacket.fromJson(json);
+      case "select_game_mode":
+        return SelectGameModePacket.fromJson(json);
 
       default:
         throw Exception("Invalid packet type");
