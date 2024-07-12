@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:onu3_server/onu/card.dart';
+import 'package:onu3_server/onu/game_mode/classic_game_mode.dart';
+import 'package:onu3_server/onu/game_mode/game_mode.dart';
 import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/outgoing/joined_game_packet.dart';
 import 'package:onu3_server/packet/outgoing/left_game_packet.dart';
@@ -11,6 +13,7 @@ import 'package:onu3_server/packet/outgoing_packet.dart';
 class Game {
   final String gameCode;
   String? password;
+  GameMode gameMode = ClassicGameMode();
   final List<Player> players = [];
   final List<Card> stack = [];
 
@@ -34,14 +37,13 @@ class Game {
     return this.password == hashed;
   }
 
-  bool join({
+  void join({
     required player,
   }) {
     players.add(player);
 
     print("Player ${player.name} joined game $gameCode");
     broadcast(JoinedGamePacket(player: player));
-    return true;
   }
 
   void removePlayer(Player player) {

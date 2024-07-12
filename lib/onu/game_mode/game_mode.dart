@@ -2,16 +2,12 @@ import 'package:onu3_server/onu/card.dart';
 import 'package:onu3_server/onu/game.dart';
 
 abstract class GameMode {
-  final String name;
-  final String description;
+  String get name;
+  String get description;
+
   final Map<String, dynamic> options = {
     "deckSize": 7,
   };
-
-  GameMode({
-    required this.name,
-    required this.description,
-  });
 
   void startGame(Game game) {
     for (var player in game.players) {
@@ -43,4 +39,12 @@ abstract class GameMode {
   }
 
   Card generateCard();
+
+  Map<String, dynamic> toJson() {
+    return {
+      "name": name,
+      "description": description,
+      "options": options,
+    };
+  }
 }

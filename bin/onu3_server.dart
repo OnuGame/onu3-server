@@ -1,5 +1,7 @@
 import 'package:onu3_server/onu/game.dart';
 import 'package:onu3_server/onu/game_manager.dart';
+import 'package:onu3_server/onu/game_mode/classic_game_mode.dart';
+import 'package:onu3_server/onu/game_mode/special_game_mode.dart';
 import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/incoming/create_game_packet.dart';
 import 'package:onu3_server/packet/incoming/join_game_packet.dart';
@@ -7,12 +9,13 @@ import 'package:onu3_server/packet/outgoing/game_created_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_exists_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_invalid_packet.dart';
 import 'package:onu3_server/packet/outgoing/password_invalid_packet.dart';
+import 'package:onu3_server/packet/outgoing/game_modes_packet.dart';
 import 'package:onu3_server/websocket/connection.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/io.dart';
 
-void joinGame(Connection connection, JoinGamePacket packet) {
+bool joinGame(Connection connection, JoinGamePacket packet) {
   print("Player ${packet.username} tries to join game ${packet.gameCode}");
 
   Game? game = gameManager.getGame(packet.gameCode);
@@ -20,14 +23,14 @@ void joinGame(Connection connection, JoinGamePacket packet) {
     connection.send(GameInvalidPacket(gameCode: packet.gameCode));
     print(
         "Denied access for player ${packet.username} to game ${packet.gameCode}: game does not exist");
-    return;
+    return false;
   }
 
   if (!game.verifyPassword(packet.password)) {
     connection.send(PasswordInvalidPacket());
     print(
         "Denied access for player ${packet.username} to game ${packet.gameCode}: invalid password");
-    return;
+    return false;
   }
 
   game.join(
@@ -37,6 +40,8 @@ void joinGame(Connection connection, JoinGamePacket packet) {
       game: game,
     ),
   );
+
+  return true;
 }
 
 void createGame(Connection connection, CreateGamePacket packet) {
@@ -76,7 +81,14 @@ void main() {
     });
 
     connection.on<JoinGamePacket>((packet) {
-      joinGame(connection, packet);
+      if (!joinGame(connection, packet)) return;
+
+      connection.send(GameModesPacket(
+        gameModes: [
+          ClassicGameMode(),
+          SpecialGameMode(),
+        ],
+      ));
     });
   }, protocols: ['onu3']);
 
