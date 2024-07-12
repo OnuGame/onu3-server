@@ -1,0 +1,1 @@
+dart compile exe --target-os linux bin/onu3_server.dart -o onu3-server
