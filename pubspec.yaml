@@ -1,7 +1,7 @@
 name: onu3_server
-description: A sample command-line application.
+description: A websocket game server for the onu3 project.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/onugame/onu3-server
 
 environment:
   sdk: ^3.2.6
