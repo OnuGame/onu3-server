@@ -8,6 +8,7 @@ import 'package:onu3_server/onu/game_mode/game_mode.dart';
 import 'package:onu3_server/onu/game_mode/game_mode_registry.dart';
 import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
+import 'package:onu3_server/packet/outgoing/error_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_modes_packet.dart';
 import 'package:onu3_server/packet/outgoing/joined_game_packet.dart';
 import 'package:onu3_server/packet/outgoing/left_game_packet.dart';
@@ -68,8 +69,11 @@ class Game {
 
     GameMode? gameMode = GameModeRegistry.getGameMode(gameModeName);
     if (gameMode == null) {
+      player.send(ErrorPacket(
+        errorMessage: "Game mode Invalid",
+        data: {'gameModeName': gameModeName},
+      ));
       return;
-      // TODO - send game mode invalid packet -> maybe even generic error packet
     }
 
     this.gameMode = gameMode;

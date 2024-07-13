@@ -3,10 +3,8 @@ import 'package:onu3_server/onu/game_manager.dart';
 import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/incoming/create_game_packet.dart';
 import 'package:onu3_server/packet/incoming/join_game_packet.dart';
+import 'package:onu3_server/packet/outgoing/error_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_created_packet.dart';
-import 'package:onu3_server/packet/outgoing/game_exists_packet.dart';
-import 'package:onu3_server/packet/outgoing/game_invalid_packet.dart';
-import 'package:onu3_server/packet/outgoing/password_invalid_packet.dart';
 import 'package:onu3_server/websocket/connection.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
@@ -17,14 +15,20 @@ bool joinGame(Connection connection, JoinGamePacket packet) {
 
   Game? game = GameManager.instance.getGame(packet.gameCode);
   if (game == null) {
-    connection.send(GameInvalidPacket(gameCode: packet.gameCode));
+    connection.send(ErrorPacket(
+      errorMessage: "Game code Invalid",
+      data: {'gameCode': packet.gameCode},
+    ));
+
     print(
         "Denied access for player ${packet.username} to game ${packet.gameCode}: game does not exist");
     return false;
   }
 
   if (!game.verifyPassword(packet.password)) {
-    connection.send(PasswordInvalidPacket());
+    connection.send(ErrorPacket(
+      errorMessage: "Password Invalid",
+    ));
     print(
         "Denied access for player ${packet.username} to game ${packet.gameCode}: invalid password");
     return false;
@@ -46,7 +50,10 @@ void createGame(Connection connection, CreateGamePacket packet) {
 
   Game? game = GameManager.instance.getGame(packet.gameCode);
   if (game != null) {
-    connection.send(GameExistsPacket(gameCode: packet.gameCode));
+    connection.send(ErrorPacket(
+      errorMessage: "Game already exists",
+      data: {'gameCode': packet.gameCode},
+    ));
     print(
         "Denied access to create game ${packet.gameCode}: game already exists");
 
