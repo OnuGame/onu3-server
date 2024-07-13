@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:onu3_server/onu/event/disconnect_event.dart';
 import 'package:onu3_server/packet/incoming_packet.dart';
 import 'package:onu3_server/packet/outgoing_packet.dart';
 import 'package:onu3_server/packet/packet.dart';
@@ -24,6 +25,17 @@ class Connection {
         }
       }
     });
+
+    webSocket.stream.handleError((error) {
+      print("❗ Error: $error");
+      triggerDisconnectEvent();
+    });
+
+    webSocket.sink.done.then((value) {
+      print(
+          "❌ Connection closed: ${webSocket.closeCode} ${webSocket.closeReason}");
+      triggerDisconnectEvent();
+    });
   }
 
   void send(OutgoingPacket packet) {
@@ -36,6 +48,15 @@ class Connection {
 
   void close() {
     webSocket.sink.close();
+    triggerDisconnectEvent();
+  }
+
+  void triggerDisconnectEvent() {
+    if (callbacks.containsKey(DisconnectEvent)) {
+      for (var callback in callbacks[DisconnectEvent]!) {
+        callback(DisconnectEvent());
+      }
+    }
   }
 
   void on<T>(Function(T) callback) {

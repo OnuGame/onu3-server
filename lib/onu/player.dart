@@ -1,4 +1,5 @@
 import 'package:onu3_server/onu/card.dart';
+import 'package:onu3_server/onu/event/disconnect_event.dart';
 import 'package:onu3_server/onu/game.dart';
 import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
 import 'package:onu3_server/packet/outgoing_packet.dart';
@@ -19,6 +20,10 @@ class Player {
     required this.name,
     required this.game,
   }) {
+    connection.on<DisconnectEvent>((event) {
+      game.removePlayer(this);
+    });
+
     connection.on<SelectGameModePacket>((packet) {
       game.selectGameMode(this, packet.gameModeName);
     });
