@@ -1,6 +1,8 @@
 import 'package:onu3_server/onu/game.dart';
 
 class GameManager {
+  static GameManager instance = GameManager();
+
   Map<String, Game> games = {};
 
   Game? getGame(String gameCode) {

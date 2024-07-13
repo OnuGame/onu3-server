@@ -17,7 +17,7 @@ import 'package:web_socket_channel/io.dart';
 bool joinGame(Connection connection, JoinGamePacket packet) {
   print("Player ${packet.username} tries to join game ${packet.gameCode}");
 
-  Game? game = gameManager.getGame(packet.gameCode);
+  Game? game = GameManager.instance.getGame(packet.gameCode);
   if (game == null) {
     connection.send(GameInvalidPacket(gameCode: packet.gameCode));
     print(
@@ -46,7 +46,7 @@ bool joinGame(Connection connection, JoinGamePacket packet) {
 void createGame(Connection connection, CreateGamePacket packet) {
   print("Someone tries to create game ${packet.gameCode}");
 
-  Game? game = gameManager.getGame(packet.gameCode);
+  Game? game = GameManager.instance.getGame(packet.gameCode);
   if (game != null) {
     connection.send(GameExistsPacket(gameCode: packet.gameCode));
     print(
@@ -55,15 +55,13 @@ void createGame(Connection connection, CreateGamePacket packet) {
     return;
   }
 
-  gameManager.createGame(
+  GameManager.instance.createGame(
     gameCode: packet.gameCode,
     password: packet.password,
   );
 
   connection.send(GameCreatedPacket(gameCode: packet.gameCode));
 }
-
-GameManager gameManager = GameManager();
 
 void main() {
   var handler =

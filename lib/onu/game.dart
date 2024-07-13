@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:crypto/crypto.dart';
 import 'package:onu3_server/onu/card.dart';
+import 'package:onu3_server/onu/game_manager.dart';
 import 'package:onu3_server/onu/game_mode/game_mode.dart';
 import 'package:onu3_server/onu/game_mode/game_mode_registry.dart';
 import 'package:onu3_server/onu/player.dart';
@@ -53,6 +54,9 @@ class Game {
   void removePlayer(Player player) {
     players.remove(player);
     broadcast(LeftGamePacket(player: player));
+    if (players.isEmpty) {
+      GameManager.instance.removeGame(gameCode);
+    }
   }
 
   void selectGameMode(Player player, String gameModeName) {
