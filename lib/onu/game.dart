@@ -50,13 +50,11 @@ class Game {
     return this.password == hashed;
   }
 
-  bool join({
+  void join({
     required Player player,
     String password = "",
   }) {
-    if (isPrivate && !verifyPassword(password)) {
-      return false;
-    }
+    if (isPrivate && !verifyPassword(password)) throw "Password Invalid";
 
     players.add(player);
 
@@ -66,8 +64,6 @@ class Game {
     player.send(GameModesPacket(
       gameModes: GameModeRegistry.gameModes,
     ));
-
-    return true;
   }
 
   void removePlayer(Player player) {

@@ -28,7 +28,10 @@ class Player {
     this.game,
   }) {
     connection.on<CreateGamePacket>((packet) {
-      Game? game = GameManager.instance.createGame(gameCode: packet.gameCode);
+      Game? game = GameManager.instance.createGame(
+        gameCode: packet.gameCode,
+        password: packet.password,
+      );
       if (game == null) {
         connection.send(ErrorPacket(
           errorMessage: "Game already exists",
@@ -50,11 +53,14 @@ class Player {
         return;
       }
 
-      if (!game.join(player: this)) {
+      try {
+        game.join(player: this, password: packet.password);
+      } catch (e) {
         connection.send(ErrorPacket(
-          errorMessage: "Password Invalid",
+          errorMessage: e.toString(),
           data: {'gameCode': packet.gameCode},
         ));
+        return;
       }
 
       this.game = game;
