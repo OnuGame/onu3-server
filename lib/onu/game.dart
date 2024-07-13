@@ -8,7 +8,7 @@ import 'package:onu3_server/onu/game_mode/game_mode.dart';
 import 'package:onu3_server/onu/game_mode/game_mode_registry.dart';
 import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
-import 'package:onu3_server/packet/outgoing/error_packet.dart';
+import 'package:onu3_server/packet/bidirectional/update_settings_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_modes_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_started_packet.dart';
 import 'package:onu3_server/packet/outgoing/joined_game_packet.dart';
@@ -75,16 +75,12 @@ class Game {
   }
 
   void selectGameMode(Player player, String gameModeName) {
-    if (players.indexOf(player) != 0) return;
+    if (players.indexOf(player) != 0) {
+      throw "Only the host can select the game mode";
+    }
 
     GameMode? gameMode = GameModeRegistry.getGameMode(gameModeName);
-    if (gameMode == null) {
-      player.send(ErrorPacket(
-        errorMessage: "Game mode Invalid",
-        data: {'gameModeName': gameModeName},
-      ));
-      return;
-    }
+    if (gameMode == null) throw "Game mode not found";
 
     this.gameMode = gameMode;
 
@@ -94,6 +90,15 @@ class Game {
     }
 
     broadcast(SelectGameModePacket(gameModeName: gameModeName));
+  }
+
+  void updateSettings(Player player, Map<String, dynamic> settings) {
+    if (players.indexOf(player) != 0) throw "Only the host can update settings";
+
+    // TODO - validate settings -> Check if types are equal to default values and if they are in the list of possible values
+
+    this.settings = settings;
+    broadcast(UpdateSettingsPacket(settings: settings));
   }
 
   void start(Player player) {

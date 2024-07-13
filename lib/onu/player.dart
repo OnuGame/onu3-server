@@ -3,6 +3,7 @@ import 'package:onu3_server/onu/event/disconnect_event.dart';
 import 'package:onu3_server/onu/game.dart';
 import 'package:onu3_server/onu/game_manager.dart';
 import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
+import 'package:onu3_server/packet/bidirectional/update_settings_packet.dart';
 import 'package:onu3_server/packet/incoming/start_game_packet.dart';
 import 'package:onu3_server/packet/incoming/create_game_packet.dart';
 import 'package:onu3_server/packet/incoming/join_game_packet.dart';
@@ -67,8 +68,32 @@ class Player {
     });
 
     connection.on<SelectGameModePacket>((packet) {
-      if (game == null) return;
-      game!.selectGameMode(this, packet.gameModeName);
+      if (game == null) {
+        connection.send(ErrorPacket(errorMessage: "Player is not in a game"));
+        return;
+      }
+      try {
+        game!.selectGameMode(this, packet.gameModeName);
+      } catch (e) {
+        connection.send(ErrorPacket(
+          errorMessage: e.toString(),
+          data: {'gameCode': game!.gameCode},
+        ));
+      }
+    });
+
+    connection.on<UpdateSettingsPacket>((packet) {
+      if (game == null) {
+        connection.send(ErrorPacket(errorMessage: "Player is not in a game"));
+        return;
+      }
+      try {
+        game!.updateSettings(this, packet.settings);
+      } catch (e) {
+        connection.send(ErrorPacket(
+          errorMessage: e.toString(),
+        ));
+      }
     });
 
     connection.on<StartGamePacket>((packet) {
