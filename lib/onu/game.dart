@@ -9,6 +9,7 @@ import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
 import 'package:onu3_server/packet/outgoing/joined_game_packet.dart';
 import 'package:onu3_server/packet/outgoing/left_game_packet.dart';
+import 'package:onu3_server/packet/outgoing/update_player_list_packet.dart';
 import 'package:onu3_server/packet/outgoing_packet.dart';
 
 class Game {
@@ -40,12 +41,13 @@ class Game {
   }
 
   void join({
-    required player,
+    required Player player,
   }) {
     players.add(player);
 
     print("Player ${player.name} joined game $gameCode");
     broadcast(JoinedGamePacket(player: player));
+    player.send(UpdatePlayerListPacket(playerList: players));
   }
 
   void removePlayer(Player player) {
