@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:onu3_server/onu/event/disconnect_event.dart';
+import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/incoming_packet.dart';
 import 'package:onu3_server/packet/outgoing_packet.dart';
 import 'package:onu3_server/packet/packet.dart';
@@ -9,6 +10,7 @@ import 'package:web_socket_channel/io.dart';
 class Connection {
   final IOWebSocketChannel webSocket;
   final Map<Type, List<Function>> callbacks = {};
+  Player? player;
 
   Connection(this.webSocket) {
     webSocket.stream.listen((message) {

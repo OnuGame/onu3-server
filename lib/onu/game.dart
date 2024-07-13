@@ -43,9 +43,14 @@ class Game {
     return this.password == hashed;
   }
 
-  void join({
+  bool join({
     required Player player,
+    String password = "",
   }) {
+    if (isPrivate && !verifyPassword(password)) {
+      return false;
+    }
+
     players.add(player);
 
     print("Player ${player.name} joined game $gameCode");
@@ -54,11 +59,13 @@ class Game {
     player.send(GameModesPacket(
       gameModes: GameModeRegistry.gameModes,
     ));
+
+    return true;
   }
 
   void removePlayer(Player player) {
-    players.remove(player);
     broadcast(LeftGamePacket(player: player));
+    players.remove(player);
     if (players.isEmpty) {
       GameManager.instance.removeGame(gameCode);
     }

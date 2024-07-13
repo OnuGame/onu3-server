@@ -10,10 +10,17 @@ class GameManager {
     return games[gameCode];
   }
 
-  Game createGame({
+  Game? createGame({
     required String gameCode,
     String password = "",
   }) {
+    // Check if game already exists
+    Game? game = getGame(gameCode);
+    if (game != null) {
+      return null;
+    }
+
+    // Create new game
     return games.putIfAbsent(
         gameCode, () => Game(gameCode: gameCode, password: password));
   }

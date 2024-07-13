@@ -1,72 +1,10 @@
-import 'package:onu3_server/onu/game.dart';
-import 'package:onu3_server/onu/game_manager.dart';
 import 'package:onu3_server/onu/player.dart';
-import 'package:onu3_server/packet/incoming/create_game_packet.dart';
-import 'package:onu3_server/packet/incoming/join_game_packet.dart';
-import 'package:onu3_server/packet/outgoing/error_packet.dart';
-import 'package:onu3_server/packet/outgoing/game_created_packet.dart';
+import 'package:onu3_server/packet/incoming/create_player_packet.dart';
+import 'package:onu3_server/packet/outgoing/player_created_packet.dart';
 import 'package:onu3_server/websocket/connection.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
 import 'package:web_socket_channel/io.dart';
-
-bool joinGame(Connection connection, JoinGamePacket packet) {
-  print("Player ${packet.username} tries to join game ${packet.gameCode}");
-
-  Game? game = GameManager.instance.getGame(packet.gameCode);
-  if (game == null) {
-    connection.send(ErrorPacket(
-      errorMessage: "Game code Invalid",
-      data: {'gameCode': packet.gameCode},
-    ));
-
-    print(
-        "Denied access for player ${packet.username} to game ${packet.gameCode}: game does not exist");
-    return false;
-  }
-
-  if (!game.verifyPassword(packet.password)) {
-    connection.send(ErrorPacket(
-      errorMessage: "Password Invalid",
-    ));
-    print(
-        "Denied access for player ${packet.username} to game ${packet.gameCode}: invalid password");
-    return false;
-  }
-
-  game.join(
-    player: Player.create(
-      connection: connection,
-      name: packet.username,
-      game: game,
-    ),
-  );
-
-  return true;
-}
-
-void createGame(Connection connection, CreateGamePacket packet) {
-  print("Someone tries to create game ${packet.gameCode}");
-
-  Game? game = GameManager.instance.getGame(packet.gameCode);
-  if (game != null) {
-    connection.send(ErrorPacket(
-      errorMessage: "Game already exists",
-      data: {'gameCode': packet.gameCode},
-    ));
-    print(
-        "Denied access to create game ${packet.gameCode}: game already exists");
-
-    return;
-  }
-
-  GameManager.instance.createGame(
-    gameCode: packet.gameCode,
-    password: packet.password,
-  );
-
-  connection.send(GameCreatedPacket(gameCode: packet.gameCode));
-}
 
 void main() {
   var handler =
@@ -78,12 +16,18 @@ void main() {
 
     Connection connection = Connection(webSocket);
 
-    connection.on<CreateGamePacket>((packet) {
-      createGame(connection, packet);
-    });
+    connection.on<CreatePlayerPacket>((packet) {
+      print("Player ${packet.username} created");
+      if (connection.player != null) {
+        connection.player!.leaveGame();
+      }
 
-    connection.on<JoinGamePacket>((packet) {
-      joinGame(connection, packet);
+      connection.player = Player.create(
+        connection: connection,
+        name: packet.username,
+      );
+
+      connection.send(PlayerCreatedPacket(username: packet.username));
     });
   }, protocols: ['onu3']);
 
