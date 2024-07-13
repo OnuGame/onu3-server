@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:onu3_server/onu/event/disconnect_event.dart';
 import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/incoming_packet.dart';
+import 'package:onu3_server/packet/outgoing/error_packet.dart';
 import 'package:onu3_server/packet/outgoing_packet.dart';
 import 'package:onu3_server/packet/packet.dart';
 import 'package:web_socket_channel/io.dart';
@@ -18,13 +19,18 @@ class Connection {
 
       final Map<String, dynamic> jsonMessage = json.decode(message as String);
 
-      Packet packet = IncomingPacket.fromJson(jsonMessage);
-      // get type of packet
-      Type type = packet.runtimeType;
-      if (callbacks.containsKey(type)) {
-        for (var callback in callbacks[type]!) {
-          callback(packet);
+      try {
+        Packet packet = IncomingPacket.fromJson(jsonMessage);
+        // get type of packet
+        Type type = packet.runtimeType;
+        if (callbacks.containsKey(type)) {
+          for (var callback in callbacks[type]!) {
+            callback(packet);
+          }
         }
+      } catch (error) {
+        print("❗ Error: $error");
+        send(ErrorPacket(errorMessage: error.toString()));
       }
     });
 

@@ -24,7 +24,7 @@ abstract class IncomingPacket implements Packet {
         return CreatePlayerPacket.fromJson(json);
 
       default:
-        throw Exception("Invalid packet type");
+        throw Exception("Invalid packet type: ${json["type"]}");
     }
   }
 }
