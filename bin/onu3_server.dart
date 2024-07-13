@@ -1,6 +1,5 @@
 import 'package:onu3_server/onu/game.dart';
 import 'package:onu3_server/onu/game_manager.dart';
-import 'package:onu3_server/onu/game_mode/game_mode_registry.dart';
 import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/incoming/create_game_packet.dart';
 import 'package:onu3_server/packet/incoming/join_game_packet.dart';
@@ -8,7 +7,6 @@ import 'package:onu3_server/packet/outgoing/game_created_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_exists_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_invalid_packet.dart';
 import 'package:onu3_server/packet/outgoing/password_invalid_packet.dart';
-import 'package:onu3_server/packet/outgoing/game_modes_packet.dart';
 import 'package:onu3_server/websocket/connection.dart';
 import 'package:shelf/shelf_io.dart' as shelf_io;
 import 'package:shelf_web_socket/shelf_web_socket.dart';
@@ -78,11 +76,7 @@ void main() {
     });
 
     connection.on<JoinGamePacket>((packet) {
-      if (!joinGame(connection, packet)) return;
-
-      connection.send(GameModesPacket(
-        gameModes: GameModeRegistry.gameModes,
-      ));
+      joinGame(connection, packet);
     });
   }, protocols: ['onu3']);
 
