@@ -3,6 +3,7 @@ import 'package:onu3_server/onu/event/disconnect_event.dart';
 import 'package:onu3_server/onu/game.dart';
 import 'package:onu3_server/onu/game_manager.dart';
 import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
+import 'package:onu3_server/packet/incoming/start_game_packet.dart';
 import 'package:onu3_server/packet/incoming/create_game_packet.dart';
 import 'package:onu3_server/packet/incoming/join_game_packet.dart';
 import 'package:onu3_server/packet/incoming/leave_game_packet.dart';
@@ -62,6 +63,17 @@ class Player {
     connection.on<SelectGameModePacket>((packet) {
       if (game == null) return;
       game!.selectGameMode(this, packet.gameModeName);
+    });
+
+    connection.on<StartGamePacket>((packet) {
+      if (game == null) return;
+      try {
+        game!.start(this);
+      } catch (e) {
+        connection.send(ErrorPacket(
+          errorMessage: e.toString(),
+        ));
+      }
     });
 
     connection.on<LeaveGamePacket>((packet) {

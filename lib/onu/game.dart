@@ -10,6 +10,7 @@ import 'package:onu3_server/onu/player.dart';
 import 'package:onu3_server/packet/bidirectional/select_game_mode_packet.dart';
 import 'package:onu3_server/packet/outgoing/error_packet.dart';
 import 'package:onu3_server/packet/outgoing/game_modes_packet.dart';
+import 'package:onu3_server/packet/outgoing/game_started_packet.dart';
 import 'package:onu3_server/packet/outgoing/joined_game_packet.dart';
 import 'package:onu3_server/packet/outgoing/left_game_packet.dart';
 import 'package:onu3_server/packet/outgoing/update_player_list_packet.dart';
@@ -22,6 +23,7 @@ class Game {
   Map<String, dynamic> settings = {};
   final List<Player> players = [];
   final List<Card> stack = [];
+  bool running = false;
 
   get playerCount => players.length;
   get isPrivate => password != null && password!.isNotEmpty;
@@ -32,6 +34,11 @@ class Game {
   }) {
     Uint8List bytes = utf8.encode(password);
     this.password = sha256.convert(bytes).toString();
+
+    settings.clear();
+    for (var setting in gameMode.settings) {
+      settings[setting.name] = setting.defaultValue;
+    }
   }
 
   bool verifyPassword(String password) {
@@ -91,6 +98,21 @@ class Game {
     }
 
     broadcast(SelectGameModePacket(gameModeName: gameModeName));
+  }
+
+  void start(Player player) {
+    if (players.indexOf(player) != 0) throw "Only the host can start the game";
+    if (running) throw "Game is already running";
+
+    broadcast(GameStartedPacket());
+
+    running = true;
+    gameMode.startGame(this);
+  }
+
+  void end() {
+    running = false;
+    gameMode.endGame(this);
   }
 
   void addCardToStack(Card card) {

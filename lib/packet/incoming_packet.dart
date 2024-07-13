@@ -1,3 +1,4 @@
+import 'package:onu3_server/packet/incoming/start_game_packet.dart';
 import 'package:onu3_server/packet/incoming/create_game_packet.dart';
 import 'package:onu3_server/packet/incoming/create_player_packet.dart';
 import 'package:onu3_server/packet/incoming/join_game_packet.dart';
@@ -15,6 +16,8 @@ abstract class IncomingPacket implements Packet {
         return LeaveGamePacket.fromJson(json);
       case "create_game":
         return CreateGamePacket.fromJson(json);
+      case "start_game":
+        return StartGamePacket.fromJson(json);
       case "select_game_mode":
         return SelectGameModePacket.fromJson(json);
       case "create_player":
