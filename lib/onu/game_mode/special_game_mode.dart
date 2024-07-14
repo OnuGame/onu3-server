@@ -13,7 +13,7 @@ class SpecialGameMode extends GameMode {
       "The special game mode introduces new cards such as 'Redistribute' and 'Swap' and new colors such as 'Cyan' and 'Purple'. Cyan can be place on any blue or green card, and purple can be placed on any blue or red card.";
 
   @override
-  List<CardPreset> get cardPresets => throw UnimplementedError();
+  List<CardPreset> get cardPresets => [];
 
   @override
   List<Setting> get settings => [

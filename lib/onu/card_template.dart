@@ -15,4 +15,13 @@ class CardTemplate {
   Card create() {
     return Card.create(color: color, type: type, data: data);
   }
+
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> data = {};
+    data["color"] = color;
+    data["type"] = type;
+    if (this.data != null) data["data"] = this.data!.toJson();
+
+    return data;
+  }
 }

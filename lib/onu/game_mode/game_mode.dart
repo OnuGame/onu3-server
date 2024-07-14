@@ -18,6 +18,12 @@ abstract class GameMode {
       )
       .toList();
 
+  List<String> get colors => cardTemplates.map((e) => e.color).toSet().toList()
+    ..sort((a, b) => a.compareTo(b));
+
+  List<String> get types => cardTemplates.map((e) => e.type).toSet().toList()
+    ..sort((a, b) => a.compareTo(b));
+
   List<Setting> get settings => [
         Setting(name: "Card Amount", defaultValue: 7),
       ];
@@ -80,7 +86,10 @@ abstract class GameMode {
     return {
       "name": name,
       "description": description,
-      "settings": settings.map((setting) => setting.toJson()).toList(),
+      "settings": settings,
+      "colors": colors,
+      "types": types,
+      "templates": cardTemplates,
     };
   }
 }
