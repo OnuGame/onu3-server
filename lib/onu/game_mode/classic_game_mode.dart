@@ -17,7 +17,7 @@ class ClassicGameMode extends GameMode {
   List<CardPreset> get cardPresets => [
         CardPreset(
           colors: ["r", "g", "b", "y"],
-          types: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"],
+          types: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "sk", "sw"],
           datas: [],
         ),
         CardPreset(
