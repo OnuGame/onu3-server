@@ -1,31 +1,31 @@
+import 'package:onu3_server/onu/card_data.dart';
 import 'package:onu3_server/utils/random_string.dart';
 
 class Card {
   final String id;
   final String type;
   final String color;
-  final Map<String, dynamic> data;
+  final CardData? data;
 
   const Card({
     required this.id,
     required this.type,
     required this.color,
-    this.data = const {},
+    this.data = const CardData(drawAmount: null),
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      "id": id,
-      "type": type,
-      "color": color,
-      "data": data,
-    };
+    Map<String, dynamic> data = {};
+    data["id"] = id;
+    data["type"] = type;
+    data["color"] = color;
+    if (this.data != null) data["data"] = this.data!.toJson();
+
+    return data;
   }
 
   factory Card.create(
-      {required String type,
-      required String color,
-      Map<String, dynamic> data = const {}}) {
+      {required String type, required String color, CardData? data}) {
     return Card(
       id: RandomString.generate(7),
       type: type,
@@ -63,7 +63,7 @@ class Card {
     String? id,
     String? type,
     String? color,
-    Map<String, dynamic>? data,
+    CardData? data,
   }) {
     return Card(
       id: id ?? this.id,

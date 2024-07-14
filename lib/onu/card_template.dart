@@ -1,14 +1,15 @@
 import 'package:onu3_server/onu/card.dart';
+import 'package:onu3_server/onu/card_data.dart';
 
 class CardTemplate {
   final String color;
   final String type;
-  final Map<String, dynamic> data;
+  final CardData? data;
 
   const CardTemplate({
     required this.color,
     required this.type,
-    required this.data,
+    this.data,
   });
 
   Card create() {

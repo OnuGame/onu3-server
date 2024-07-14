@@ -1,4 +1,5 @@
 import 'package:onu3_server/onu/card.dart';
+import 'package:onu3_server/onu/card_data.dart';
 import 'package:onu3_server/onu/card_preset.dart';
 import 'package:onu3_server/onu/game.dart';
 import 'package:onu3_server/onu/game_mode/game_mode.dart';
@@ -23,15 +24,15 @@ class ClassicGameMode extends GameMode {
           colors: [""],
           types: ["w"],
           datas: [
-            {'cardAmount': 0},
-            {'cardAmount': 4},
+            CardData(drawAmount: 0),
+            CardData(drawAmount: 4),
           ],
         ),
         CardPreset(
           colors: ["r", "g", "b", "y"],
           types: ["p"],
           datas: [
-            {'cardAmount': 2},
+            CardData(drawAmount: 2),
           ],
         )
       ];
