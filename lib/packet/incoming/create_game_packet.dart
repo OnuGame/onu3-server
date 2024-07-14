@@ -15,7 +15,7 @@ class CreateGamePacket implements IncomingPacket {
   factory CreateGamePacket.fromJson(Map<String, dynamic> json) {
     return CreateGamePacket(
       gameCode: json["gameCode"],
-      password: json["password"],
+      password: json["password"] ?? "",
     );
   }
 }

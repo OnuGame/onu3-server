@@ -15,7 +15,7 @@ class JoinGamePacket implements IncomingPacket {
   factory JoinGamePacket.fromJson(Map<String, dynamic> json) {
     return JoinGamePacket(
       gameCode: json["gameCode"],
-      password: json["password"],
+      password: json["password"] ?? "",
     );
   }
 }
