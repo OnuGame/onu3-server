@@ -16,7 +16,8 @@ abstract class GameMode {
       .expand(
         (preset) => preset.generateCardTemplates(),
       )
-      .toList();
+      .toList()
+    ..sort((a, b) => a.toString().compareTo(b.toString()));
 
   List<String> get colors => cardTemplates.map((e) => e.color).toSet().toList()
     ..sort((a, b) => a.compareTo(b));

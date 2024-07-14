@@ -16,6 +16,11 @@ class CardTemplate {
     return Card.create(color: color, type: type, data: data);
   }
 
+  @override
+  String toString() {
+    return "CardTemplate{color: $color, type: $type, data: $data}";
+  }
+
   Map<String, dynamic> toJson() {
     Map<String, dynamic> data = {};
     data["color"] = color;
