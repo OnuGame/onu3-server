@@ -7,14 +7,36 @@ import 'package:onu3_server/packet/outgoing/error_packet.dart';
 import 'package:onu3_server/packet/outgoing_packet.dart';
 import 'package:onu3_server/packet/packet.dart';
 import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 class Connection {
-  final IOWebSocketChannel webSocket;
+  final IOWebSocketChannel? webSocket;
+  Stream<dynamic> get stream {
+    if (webSocket == null) return Stream.empty();
+    return webSocket!.stream;
+  }
+
+  WebSocketSink get sink {
+    if (webSocket == null) throw Exception("WebSocket is null");
+    return webSocket!.sink;
+  }
+
+  int? get closeCode {
+    if (webSocket == null) throw Exception("WebSocket is null");
+    return webSocket!.closeCode;
+  }
+
+  String? get closeReason {
+    if (webSocket == null) throw Exception("WebSocket is null");
+    return webSocket!.closeReason;
+  }
+
   final Map<Type, List<Function>> callbacks = {};
   Player? player;
 
   Connection(this.webSocket) {
-    webSocket.stream.listen((message) {
+    if (webSocket == null) return;
+    stream.listen((message) {
       print("↙️ $message");
 
       final Map<String, dynamic> jsonMessage = json.decode(message as String);
@@ -34,16 +56,19 @@ class Connection {
       }
     });
 
-    webSocket.stream.handleError((error) {
+    stream.handleError((error) {
       print("❗ Error: $error");
       triggerDisconnectEvent();
     });
 
-    webSocket.sink.done.then((value) {
-      print(
-          "❌ Connection closed: ${webSocket.closeCode} ${webSocket.closeReason}");
+    sink.done.then((value) {
+      print("❌ Connection closed: $closeCode $closeReason");
       triggerDisconnectEvent();
     });
+  }
+
+  factory Connection.empty() {
+    return Connection(null);
   }
 
   void send(OutgoingPacket packet) {
@@ -51,11 +76,11 @@ class Connection {
 
     print("↗️ $message");
 
-    webSocket.sink.add(message);
+    sink.add(message);
   }
 
   void close() {
-    webSocket.sink.close();
+    sink.close();
     triggerDisconnectEvent();
   }
 
