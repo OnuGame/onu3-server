@@ -13,6 +13,7 @@ dependencies:
   web_socket_channel: ^2.4.3
   uuid: ^4.4.2
   crypto: ^3.0.3
+  xml: ^6.5.0
 
 dev_dependencies:
   lints: ^2.1.0
